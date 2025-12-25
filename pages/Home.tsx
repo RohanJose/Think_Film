@@ -167,7 +167,7 @@ const Home: React.FC = () => {
       type: 'video',
       title: 'AUTOMOTIVE',
       subtitle: 'PRECISION IN MOTION',
-      src: 'automative1.mp4',
+      src: 'automative1.webm',
       link: '/automotive',
       btnText: 'EXPLORE AUTOMOTIVE',
     },
@@ -176,7 +176,7 @@ const Home: React.FC = () => {
       type: 'video',
       title: 'CORPORATE',
       subtitle: 'EDITORIAL LEADERSHIP',
-      src: 'coperate1.mp4',
+      src: 'coperate1.webm',
       link: '/corporate',
       btnText: 'EXPLORE CORPORATE',
     },
@@ -185,7 +185,7 @@ const Home: React.FC = () => {
       type: 'video',
       title: 'CONCERTS',
       subtitle: 'LIVE ENERGY',
-      src: 'concert1.mp4',
+      src: 'concert1.webm',
       link: '/concerts',
       btnText: 'EXPLORE CONCERTS',
     },
@@ -276,7 +276,7 @@ const Home: React.FC = () => {
                 preload="auto"
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 video-breath"
               >
-                <source src={(section as any).src} type="video/mp4" />
+                <source src={(section as any).src} type="video/webm" />
               </video>
 
               {/* Cinematic Overlay */}
