@@ -1,0 +1,8 @@
+{
+  "name": "Think Films - Luxury Media Production",
+  "description": "A premium, cinematic media production website for Think Films / Think Music, inspired by luxury fashion aesthetics with high-performance video delivery.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
