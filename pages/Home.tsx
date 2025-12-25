@@ -168,6 +168,7 @@ const Home: React.FC = () => {
       title: 'AUTOMOTIVE',
       subtitle: 'PRECISION IN MOTION',
       src: 'automative1.webm',
+      poster: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1920',
       link: '/automotive',
       btnText: 'EXPLORE AUTOMOTIVE',
     },
@@ -176,6 +177,7 @@ const Home: React.FC = () => {
       title: 'CORPORATE',
       subtitle: 'EDITORIAL LEADERSHIP',
       src: 'coperate1.webm',
+      poster: 'https://images.unsplash.com/photo-1540575861501-7ad058bc382d?auto=format&fit=crop&q=80&w=1920',
       link: '/corporate',
       btnText: 'EXPLORE CORPORATE',
     },
@@ -184,6 +186,7 @@ const Home: React.FC = () => {
       title: 'CONCERTS',
       subtitle: 'LIVE ENERGY',
       src: 'concert1.webm',
+      poster: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1920',
       link: '/concerts',
       btnText: 'EXPLORE CONCERTS',
     },
@@ -260,6 +263,7 @@ const Home: React.FC = () => {
                 muted={isMuted}
                 loop
                 playsInline
+                poster={section.poster}
                 preload="auto"
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 video-breath"
               >
@@ -323,7 +327,7 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. GLOBAL PRODUCTION NETWORK - NEW EXPANDED VERSION */}
+        {/* 5. GLOBAL PRODUCTION NETWORK - MINIMALIST VERSION */}
         <section 
           ref={(el) => { sectionRefs.current[5] = el; }}
           className="snap-section flex flex-col items-center justify-center bg-white px-8"
@@ -334,25 +338,12 @@ const Home: React.FC = () => {
             }`}
           >
             <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-16">
-              Global Production Network
+              Global Presence
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-20 md:gap-32 px-12">
-              <div className="flex flex-col items-center group cursor-default">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <h4 className="text-3xl md:text-6xl font-black uppercase tracking-tighter group-hover:scale-105 transition-transform duration-700">India</h4>
-                </div>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-[0.4em] font-bold mb-4">Operations Base</p>
-                <p className="text-[10px] text-neutral-300 font-mono tracking-widest">28.6139° N, 77.2090° E</p>
-              </div>
-              <div className="flex flex-col items-center group cursor-default">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <h4 className="text-3xl md:text-6xl font-black uppercase tracking-tighter group-hover:scale-105 transition-transform duration-700">UAE</h4>
-                </div>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-[0.4em] font-bold mb-4">Strategic Hub</p>
-                <p className="text-[10px] text-neutral-300 font-mono tracking-widest">25.2048° N, 55.2708° E</p>
-              </div>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-40">
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default">India</h4>
+              <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default">UAE</h4>
             </div>
             <div className="mt-24">
               <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">
@@ -368,7 +359,7 @@ const Home: React.FC = () => {
           className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar"
         >
           <div className="flex-grow flex flex-col items-center justify-center py-24 md:py-32 px-8">
-            <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] text-black">
+            <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] text-black text-center">
               Think <br /> Differently.
             </h2>
           </div>
