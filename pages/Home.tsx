@@ -18,7 +18,7 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   onToggleMute,
   dark = true,
 }) => (
-  <div className="absolute bottom-10 right-10 z-[80] flex items-center space-x-3">
+  <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-[80] flex items-center space-x-3">
     <button
       onClick={onTogglePlay}
       className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md ${
@@ -129,7 +129,8 @@ const Home: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (containerRef.current) {
-        const index = Math.round(containerRef.current.scrollTop / window.innerHeight);
+        const scrollPos = containerRef.current.scrollTop;
+        const index = Math.round(scrollPos / window.innerHeight);
         if (index !== activeIndex) {
           setActiveIndex(index);
         }
@@ -192,8 +193,8 @@ const Home: React.FC = () => {
 
   return (
     <main className="relative h-screen w-full bg-white">
-      {/* Side Navigation Dots */}
-      <div className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-[90] flex flex-col space-y-6">
+      {/* Side Navigation Dots - Hidden on Mobile */}
+      <div className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-[90] hidden md:flex flex-col space-y-6">
         {[...sections, { id: 'philosophy' }, { id: 'cta' }, { id: 'footer' }].map((_, i) => (
           <button
             key={i}
@@ -222,36 +223,36 @@ const Home: React.FC = () => {
             className={`relative z-10 text-center px-6 transition-all duration-[1200ms] transform ${
               activeIndex === 0
                 ? 'translate-y-0 opacity-100 scale-100'
-                : 'translate-y-6 opacity-0 scale-98'
+                : 'translate-y-6 opacity-0 scale-95'
             }`}
           >
-            {/* Logo container - focal point */}
-            <div className="flex justify-center mb-1">
+            {/* Logo container - focal point - Larger on mobile */}
+            <div className="flex justify-center mb-0.5">
               <img
                 src="/colored-logo.png"
                 alt="Think Films"
-                className="h-24 md:h-44 lg:h-52 w-auto select-none transition-transform duration-700 hover:scale-105"  
+                className="h-40 md:h-44 lg:h-52 w-auto select-none transition-transform duration-700 hover:scale-105"  
               />
             </div>
 
             {/* Subtitle - tightly coupled to logo */}
-            <p className="text-[9px] md:text-[10px] uppercase tracking-[1.2em] font-black text-black/30">
+            <p className="text-[10px] md:text-[11px] uppercase tracking-[1em] font-black text-black/40">
               {sections[0].subtitle}
             </p>
 
-            <div className="mt-16 w-12 h-[1px] bg-black/5 mx-auto"></div>
+            <div className="mt-12 md:mt-16 w-12 h-[1px] bg-black/5 mx-auto"></div>
           </div>
 
-          {/* Minimal Signatures */}
-          <div className="absolute bottom-10 left-10 md:left-12 flex flex-col items-start overflow-hidden">
-             <p className={`text-[8px] font-black uppercase tracking-[0.6em] text-black/10 transition-all duration-1000 delay-500 ${activeIndex === 0 ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
+          {/* Minimal Signatures - Persistent position */}
+          <div className="absolute bottom-10 left-8 md:left-12 flex flex-col items-start overflow-hidden">
+             <p className={`text-[9px] font-black uppercase tracking-[0.5em] text-black/10 transition-all duration-1000 ${activeIndex === 0 ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
                 Think Differently.
              </p>
-             <div className="w-8 h-[1px] bg-black/5 mt-2"></div>
+             <div className="w-8 h-[1.5px] bg-black/5 mt-2"></div>
           </div>
           
-          <div className="absolute bottom-10 right-10 md:right-12 hidden md:block overflow-hidden">
-             <p className={`text-[8px] font-black uppercase tracking-[0.4em] text-black/10 transition-all duration-1000 delay-700 ${activeIndex === 0 ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
+          <div className="absolute bottom-10 right-8 md:right-12 hidden md:block overflow-hidden">
+             <p className={`text-[9px] font-black uppercase tracking-[0.4em] text-black/10 transition-all duration-1000 ${activeIndex === 0 ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
                 Premium Studio / 2025
              </p>
           </div>
@@ -293,13 +294,13 @@ const Home: React.FC = () => {
                     {(section as any).subtitle}
                   </p>
                 </div>
-                <h2 className="text-5xl md:text-[8.5rem] font-black uppercase tracking-tighter text-white mb-14 select-none leading-[0.8] drop-shadow-2xl">
+                <h2 className="text-4xl md:text-[8.5rem] font-black uppercase tracking-tighter text-white mb-10 md:mb-14 select-none leading-[0.8] drop-shadow-2xl">
                   {section.title}
                 </h2>
                 <div className="flex justify-center items-center">
                   <Link
                     to={(section as any).link}
-                    className="action-btn-video min-w-[300px] hover:scale-105 transition-transform active:scale-95 shadow-2xl"
+                    className="action-btn-video min-w-[260px] md:min-w-[300px] hover:scale-105 transition-transform active:scale-95 shadow-2xl"
                   >
                     {(section as any).btnText}
                   </Link>
@@ -318,7 +319,7 @@ const Home: React.FC = () => {
         })}
 
         {/* Philosophy & Brands */}
-        <section className="snap-section flex flex-col items-center justify-center bg-white px-8">
+        <section className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8">
           <div
             className={`max-w-4xl text-center transition-all duration-1000 transform ${
               activeIndex === 4 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
@@ -327,18 +328,19 @@ const Home: React.FC = () => {
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-8">
               The Future of Storytelling
             </p>
-            <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight mb-16 text-black">
+            <h3 className="text-2xl md:text-5xl font-black uppercase tracking-tighter leading-tight mb-12 md:mb-16 text-black">
               Think Films is a professional media production house. We define the visual
               standards of tomorrow.
             </h3>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-16 overflow-hidden rounded-sm">
+            {/* Brands Grid - Larger logos on mobile */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-12 md:mb-16 overflow-hidden rounded-sm">
               {BRANDS.map((brand, i) => (
                 <div
                   key={i}
-                  className="bg-white flex items-center justify-center p-8 md:p-12 grayscale opacity-40 hover:opacity-100 transition-all duration-700"
+                  className="bg-white flex items-center justify-center p-10 md:p-12 grayscale opacity-40 hover:opacity-100 transition-all duration-700 h-24 md:h-auto"
                 >
-                  <img src={brand.logo} alt={brand.name} className="max-h-6 md:max-h-10 w-auto" />
+                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-10 w-auto object-contain" />
                 </div>
               ))}
             </div>
@@ -359,11 +361,11 @@ const Home: React.FC = () => {
               activeIndex === 5 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
-            <h2 className="text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] mb-12 text-black">
+            <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] mb-12 text-black">
               Think <br /> Differently.
             </h2>
             <div className="flex justify-center items-center">
-              <Link to="/contact" className="action-btn min-w-[280px]">
+              <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[280px]">
                 INITIATE COMMISSION
               </Link>
             </div>
@@ -376,10 +378,10 @@ const Home: React.FC = () => {
             <p className="text-[9px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-12">
               Global Production Network
             </p>
-            <div className="flex space-x-24 md:space-x-48">
+            <div className="flex space-x-12 md:space-x-48">
               {['India', 'UAE'].map((region) => (
                 <div key={region} className="text-center">
-                  <p className="text-sm md:text-xl font-black uppercase tracking-tighter">
+                  <p className="text-base md:text-xl font-black uppercase tracking-tighter">
                     {region}
                   </p>
                   <p className="text-[8px] text-neutral-400 uppercase tracking-widest mt-2">
