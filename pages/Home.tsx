@@ -404,38 +404,38 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS */}
+        {/* 4. PHILOSOPHY & BRANDS (OPTIMIZED FOR LANDSCAPE) */}
         <section 
           ref={(el) => { sectionRefs.current[4] = el; }}
-          className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8 py-12"
+          className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8 py-6 sm:py-12"
         >
           <div
             className={`max-w-6xl w-full text-center transition-all duration-[1500ms] transform h-full flex flex-col justify-center ${
               activeIndex === 4 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-6">
+            <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-4 sm:mb-6">
               The Future of Storytelling
             </p>
-            <h3 className="text-xl sm:text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight mb-8 md:mb-12 text-black">
+            <h3 className="text-lg sm:text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight mb-6 sm:mb-12 text-black max-w-4xl mx-auto">
               Think Films is a professional media production house. We define the visual
               standards of tomorrow.
             </h3>
             
-            {/* Improved Brand Scroll for Mobile */}
-            <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 gap-px bg-neutral-100 border border-neutral-100 mb-8 md:mb-12 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
+            {/* Grid updated to 4 columns on desktop as requested */}
+            <div className="flex md:grid md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-6 sm:mb-12 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
               {BRANDS.map((brand, i) => (
                 <div
                   key={i}
-                  className="bg-white flex-shrink-0 w-[60vw] sm:w-[30vw] md:w-auto flex items-center justify-center p-8 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] sm:aspect-auto sm:h-24 md:h-32 snap-center"
+                  className="bg-white flex-shrink-0 w-[60vw] sm:w-[30vw] md:w-auto flex items-center justify-center p-8 md:p-10 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] sm:aspect-auto sm:h-24 md:h-36 snap-center"
                 >
-                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-8 w-auto object-contain" />
+                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-10 w-auto object-contain" />
                 </div>
               ))}
             </div>
             
-            <Link to="/about" className="text-[11px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity text-black inline-block mx-auto">
-              The Philosophy
+            <Link to="/about" className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity text-black inline-block mx-auto">
+              Learn More
             </Link>
           </div>
         </section>
@@ -445,22 +445,22 @@ const Home: React.FC = () => {
           ref={(el) => { sectionRefs.current[5] = el; }}
           className="snap-section flex flex-col justify-center bg-white overflow-hidden relative"
         >
-          <div className="w-full px-8 md:px-12 mb-8">
+          <div className="w-full px-8 md:px-12 mb-4 md:mb-8">
             <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <p className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-4">Vertical Showcase</p>
-              <h4 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
+              <p className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-2 md:mb-4">Vertical Showcase</p>
+              <h4 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
             </div>
           </div>
           
           <div className="relative w-full px-4 md:px-8 max-w-[1600px] mx-auto">
             <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[60]">
-               <button onClick={prevSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
-                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+               <button onClick={prevSlide} className="w-10 h-10 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
+                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                </button>
             </div>
             <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[60]">
-               <button onClick={nextSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
-                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+               <button onClick={nextSlide} className="w-10 h-10 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
+                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                </button>
             </div>
 
@@ -472,9 +472,6 @@ const Home: React.FC = () => {
                 {showcaseVideos.map((id, idx) => {
                   const isMobile = window.innerWidth < 768;
                   const itemsPerPage = isMobile ? 1 : 3;
-                  
-                  // On Desktop: Play all together when section is active.
-                  // On Mobile: Play only the centered/visible one.
                   const isVisible = idx >= carouselIndex && idx < carouselIndex + itemsPerPage;
                   const shouldPlay = (isMobile ? isVisible : true) && activeIndex === 5;
                   
@@ -482,10 +479,6 @@ const Home: React.FC = () => {
                     <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8">
                       <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg scale-[0.98] transition-transform duration-700 hover:scale-[1.01]">
                         <YouTubeEmbed videoId={id} active={activeIndex === 5} shouldPlay={shouldPlay} />
-                        <div className="absolute bottom-6 left-6 z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                          <span className="text-[9px] font-black text-white uppercase tracking-[0.4em]">Archive / 0{idx + 1}</span>
-                          <h5 className="text-lg text-white font-black uppercase tracking-tighter mt-1">Short Film</h5>
-                        </div>
                       </div>
                     </div>
                   );
@@ -493,7 +486,6 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* Global controls hidden on mobile for Gallery as requested */}
           <div className="hidden md:block">
             <VideoControls isPlaying={isPlaying} isMuted={isMuted} onTogglePlay={togglePlay} onToggleMute={toggleMute} dark={activeIndex === 5} />
           </div>
@@ -505,13 +497,13 @@ const Home: React.FC = () => {
           className="snap-section flex flex-col items-center justify-center bg-white px-8"
         >
           <div className={`w-full max-w-7xl text-center transition-all duration-[1500ms] transform ${activeIndex === 6 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-16">Global Presence</p>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-40">
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter text-black">India</h4>
+            <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-8 md:mb-16">Global Presence</p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-40">
+              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black">India</h4>
               <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter text-black">UAE</h4>
+              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black">UAE</h4>
             </div>
-            <div className="mt-24">
+            <div className="mt-12 md:mt-24">
               <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">Initiate commission</Link>
             </div>
           </div>
@@ -522,7 +514,7 @@ const Home: React.FC = () => {
           ref={(el) => { sectionRefs.current[7] = el; }}
           className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar"
         >
-          <div className="flex-grow flex flex-col items-center justify-center py-24 md:py-32 px-8">
+          <div className="flex-grow flex flex-col items-center justify-center py-20 md:py-32 px-8">
             <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] text-black text-center">
               Think <br /> Differently.
             </h2>
