@@ -70,7 +70,8 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     }
   }, [shouldPlay, active]);
 
-  const toggleMute = () => {
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const newMuteState = !isMuted;
     setIsMuted(newMuteState);
     if (iframeRef.current) {
@@ -101,18 +102,28 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
           style={{ backgroundImage: `url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg)` }}
         />
       )}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-black/40 pointer-events-none"></div>
+      
+      {/* Mute toggle button - improved visibility for desktop */}
       {active && shouldPlay && (
         <button
-          onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-          className="absolute bottom-6 right-6 z-[40] flex items-center space-x-3 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/20 transition-all hover:bg-white hover:border-white group/mute active:scale-95"
+          onClick={toggleMute}
+          className="absolute bottom-6 right-6 z-[80] flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 transition-all hover:bg-white hover:border-white group/mute active:scale-95 shadow-lg"
           title={isMuted ? "Unmute" : "Mute"}
         >
-          <span className="text-[8px] font-black uppercase tracking-widest text-white group-hover/mute:text-black">
-            {isMuted ? 'Audio Off' : 'Audio On'}
+          <svg className="w-4 h-4 text-white group-hover/mute:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24">
+            {isMuted ? (
+              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+            ) : (
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            )}
+          </svg>
+          <span className="text-[7px] font-black uppercase tracking-widest text-white group-hover/mute:text-black transition-colors hidden md:block">
+            {isMuted ? 'Muted' : 'Sound'}
           </span>
         </button>
       )}
+      
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-black/40 pointer-events-none"></div>
     </div>
   );
 };
@@ -238,16 +249,17 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS */}
+        {/* 4. PHILOSOPHY & BRANDS - FIXED MOBILE GRID */}
         <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-section flex flex-col items-center justify-start pt-24 md:pt-40 bg-white px-6 md:px-8">
           <div className={`max-w-6xl w-full text-center transition-all duration-[1500ms] ${activeIndex === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-4">Core Identity</p>
             <h3 className="text-lg md:text-3xl font-black uppercase tracking-tighter leading-tight mb-8 text-black">We define the visual standards of tomorrow.</h3>
             
-            <div className="flex md:grid md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-8 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
+            {/* 2 columns on mobile, 4 columns on desktop - no horizontal scroll */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-8">
               {BRANDS.slice(0, 8).map((brand, i) => (
-                <div key={i} className="bg-white flex-shrink-0 w-[60vw] md:w-auto flex items-center justify-center p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] md:h-40 snap-center">
-                  <img src={brand.logo} alt={brand.name} className="max-h-10 w-auto object-contain" />
+                <div key={i} className="bg-white flex items-center justify-center p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] md:h-40">
+                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-10 w-auto object-contain" />
                 </div>
               ))}
             </div>
@@ -255,7 +267,7 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. ARCHIVE (Heading Replaced & Sizes Restored) */}
+        {/* 5. ARCHIVE */}
         <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col justify-start pt-[90px] md:pt-[100px] bg-white overflow-hidden relative">
           <div className="w-full px-8 md:px-12 mb-8">
             <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -264,14 +276,14 @@ const Home: React.FC = () => {
           </div>
           
           <div className="relative w-full px-4 md:px-8 max-w-[1600px] mx-auto">
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[60]">
-               <button onClick={prevSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
-                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[90]">
+               <button onClick={prevSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all hover:bg-black hover:text-white group">
+                 <svg className="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                </button>
             </div>
-            <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[60]">
-               <button onClick={nextSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
-                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+            <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[90]">
+               <button onClick={nextSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all hover:bg-black hover:text-white group">
+                 <svg className="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                </button>
             </div>
 
