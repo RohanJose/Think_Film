@@ -19,7 +19,7 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   onToggleMute,
   dark = true,
 }) => (
-  <div className="absolute bottom-10 left-6 md:left-12 z-[80] flex items-center space-x-3">
+  <div className="absolute top-[85px] md:top-auto md:bottom-10 left-6 md:left-12 z-[80] flex items-center space-x-3">
     <button
       onClick={onTogglePlay}
       className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md ${
@@ -82,7 +82,6 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
   const [isMuted, setIsMuted] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Handle Play/Pause based on 'shouldPlay' and section activity
   useEffect(() => {
     if (iframeRef.current && active) {
       const command = shouldPlay ? 'playVideo' : 'pauseVideo';
@@ -98,7 +97,6 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     setIsMuted(newMuteState);
     
     if (iframeRef.current) {
-      // Use camelCase for YouTube IFrame API commands
       const command = newMuteState ? 'mute' : 'unMute';
       iframeRef.current.contentWindow?.postMessage(
         JSON.stringify({ event: 'command', func: command, args: '' }),
@@ -110,10 +108,10 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
   return (
     <div className="relative w-full h-full overflow-hidden bg-black group rounded-lg shadow-2xl">
       {active ? (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0">
           <iframe
             ref={iframeRef}
-            className="absolute inset-x-0 top-[-10%] h-[120%] w-full pointer-events-none"
+            className="absolute inset-x-0 top-[-10%] h-[120%] w-full"
             src={`https://www.youtube.com/embed/${videoId}?autoplay=${shouldPlay ? 1 : 0}&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&playsinline=1&origin=${window.location.origin}`}
             title="Shorts player"
             frameBorder="0"
@@ -127,13 +125,11 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
         />
       )}
       
-      {/* Cinematic Overlays */}
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/60 pointer-events-none"></div>
       <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none"></div>
       <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black/40 to-transparent z-10 pointer-events-none"></div>
       <div className="absolute inset-0 z-20 transition-colors duration-700 bg-black/20 group-hover:bg-transparent pointer-events-none"></div>
 
-      {/* Audio Mute/Unmute Toggle Button */}
       {active && shouldPlay && (
         <button
           onClick={(e) => {
@@ -154,7 +150,7 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
             {isMuted ? (
               <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
             ) : (
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
             )}
           </svg>
         </button>
@@ -408,43 +404,43 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS (FIXED GRID OVERLAP) */}
+        {/* 4. PHILOSOPHY & BRANDS (MOBILE LOGO SCROLL) */}
         <section 
           ref={(el) => { sectionRefs.current[4] = el; }}
-          className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8"
+          className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8 py-12"
         >
           <div
-            className={`max-w-6xl w-full text-center transition-all duration-[1500ms] transform ${
+            className={`max-w-6xl w-full text-center transition-all duration-[1500ms] transform h-full flex flex-col justify-center ${
               activeIndex === 4 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-8">
+            <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-6">
               The Future of Storytelling
             </p>
-            <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight mb-16 text-black">
+            <h3 className="text-xl sm:text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight mb-8 md:mb-12 text-black">
               Think Films is a professional media production house. We define the visual
               standards of tomorrow.
             </h3>
             
-            {/* Improved Flexible Grid for Brands */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-12 overflow-hidden rounded-sm">
+            {/* Horizontal scroll for brands on mobile, grid on desktop */}
+            <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 gap-px bg-neutral-100 border border-neutral-100 mb-8 md:mb-12 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
               {BRANDS.map((brand, i) => (
                 <div
                   key={i}
-                  className="bg-white flex items-center justify-center p-6 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 h-24 md:h-32"
+                  className="bg-white flex-shrink-0 w-[45vw] sm:w-[30vw] md:w-auto flex items-center justify-center p-6 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-video sm:aspect-auto sm:h-24 md:h-32 snap-center"
                 >
                   <img src={brand.logo} alt={brand.name} className="max-h-6 md:max-h-8 w-auto object-contain" />
                 </div>
               ))}
             </div>
             
-            <Link to="/about" className="text-[11px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity text-black">
+            <Link to="/about" className="text-[11px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity text-black inline-block mx-auto">
               The Philosophy
             </Link>
           </div>
         </section>
 
-        {/* 5. FEATURED WORKS (SYNCED PLAYBACK) */}
+        {/* 5. FEATURED WORKS (OPTIMIZED PLAYBACK) */}
         <section 
           ref={(el) => { sectionRefs.current[5] = el; }}
           className="snap-section flex flex-col justify-center bg-white overflow-hidden relative"
@@ -474,9 +470,13 @@ const Home: React.FC = () => {
                 style={{ transform: `translateX(-${carouselIndex * (100 / (window.innerWidth < 768 ? 1 : 3))}%)` }}
               >
                 {showcaseVideos.map((id, idx) => {
-                  const itemsPerPage = window.innerWidth < 768 ? 1 : 3;
+                  const isMobile = window.innerWidth < 768;
+                  const itemsPerPage = isMobile ? 1 : 3;
+                  
+                  // On Desktop: Play all together when section is active.
+                  // On Mobile: Play only the centered/visible one.
                   const isVisible = idx >= carouselIndex && idx < carouselIndex + itemsPerPage;
-                  const shouldPlay = isVisible && activeIndex === 5;
+                  const shouldPlay = (isMobile ? isVisible : true) && activeIndex === 5;
                   
                   return (
                     <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8">
@@ -493,6 +493,7 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
+          <VideoControls isPlaying={isPlaying} isMuted={isMuted} onTogglePlay={togglePlay} onToggleMute={toggleMute} dark={activeIndex === 5} />
         </section>
 
         {/* 6. GLOBAL PRODUCTION NETWORK */}
