@@ -37,7 +37,7 @@ const Contact: React.FC = () => {
               <div>
                 <p className="text-[9px] uppercase tracking-[0.5em] font-black text-neutral-300 mb-4">Direct Access</p>
                 <p className="text-sm font-bold uppercase tracking-widest">hello@thinkfilms.in</p>
-                <p className="text-sm font-bold uppercase tracking-widest mt-1">+91 98110 54321</p>
+                <p className="text-sm font-bold uppercase tracking-widest mt-1">+91 98479 49045 </p>
               </div>
             </div>
 
