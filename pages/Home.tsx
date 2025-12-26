@@ -78,16 +78,27 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   </div>
 );
 
-const YouTubeEmbed: React.FC<{ videoId: string; active: boolean }> = ({ videoId, active }) => {
+const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boolean }> = ({ videoId, active, shouldPlay }) => {
   const [isMuted, setIsMuted] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Handle Play/Pause based on 'shouldPlay' and section activity
+  useEffect(() => {
+    if (iframeRef.current && active) {
+      const command = shouldPlay ? 'playVideo' : 'pauseVideo';
+      iframeRef.current.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: command, args: '' }),
+        '*'
+      );
+    }
+  }, [shouldPlay, active]);
 
   const toggleMute = () => {
     const newMuteState = !isMuted;
     setIsMuted(newMuteState);
     
     if (iframeRef.current) {
-      // Note: YouTube API uses 'unMute' with capital M.
+      // Use camelCase for YouTube IFrame API commands
       const command = newMuteState ? 'mute' : 'unMute';
       iframeRef.current.contentWindow?.postMessage(
         JSON.stringify({ event: 'command', func: command, args: '' }),
@@ -103,7 +114,7 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean }> = ({ videoId,
           <iframe
             ref={iframeRef}
             className="absolute inset-x-0 top-[-10%] h-[120%] w-full pointer-events-none"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&origin=${window.location.origin}`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=${shouldPlay ? 1 : 0}&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&playsinline=1&origin=${window.location.origin}`}
             title="Shorts player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -123,9 +134,12 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean }> = ({ videoId,
       <div className="absolute inset-0 z-20 transition-colors duration-700 bg-black/20 group-hover:bg-transparent pointer-events-none"></div>
 
       {/* Audio Mute/Unmute Toggle Button */}
-      {active && (
+      {active && shouldPlay && (
         <button
-          onClick={toggleMute}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleMute();
+          }}
           className="absolute bottom-6 right-6 z-[40] flex items-center space-x-3 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/20 transition-all hover:bg-white hover:border-white group/mute active:scale-95"
           title={isMuted ? "Unmute" : "Mute"}
         >
@@ -264,7 +278,6 @@ const Home: React.FC = () => {
     },
   ];
 
-
   const showcaseVideos = [
     'Jdk7xznnWhg', 
     'XFRclyarPMg',
@@ -294,8 +307,8 @@ const Home: React.FC = () => {
 
   return (
     <main className="relative h-screen w-full bg-white">
-      {/* Side Navigation Dots - Hidden specifically for the Motion Gallery (index 5) */}
-      <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 pointer-events-none translate-x-10' : 'opacity-100'}`}>
+      {/* Side Navigation Dots - Hidden specifically for section 5 */}
+      <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <button
             key={i}
@@ -348,12 +361,6 @@ const Home: React.FC = () => {
               MEDIA PRODUCTION HOUSE
             </p>
           </div>
-          <div className="absolute bottom-10 left-8 md:left-12 flex flex-col items-start">
-             <p className={`text-[9px] font-black uppercase tracking-[0.5em] text-black/10 transition-opacity duration-1000 ${activeIndex === 0 ? 'opacity-100' : 'opacity-0'}`}>
-                Think Differently.
-             </p>
-             <div className="w-8 h-[1.5px] bg-black/5 mt-2"></div>
-          </div>
         </section>
 
         {/* 1, 2, 3. VIDEO SECTIONS */}
@@ -401,104 +408,90 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS */}
+        {/* 4. PHILOSOPHY & BRANDS (FIXED GRID OVERLAP) */}
         <section 
           ref={(el) => { sectionRefs.current[4] = el; }}
           className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8"
         >
           <div
-            className={`max-w-4xl text-center transition-all duration-[1500ms] transform ${
+            className={`max-w-6xl w-full text-center transition-all duration-[1500ms] transform ${
               activeIndex === 4 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-8">
               The Future of Storytelling
             </p>
-            <h3 className="text-2xl md:text-5xl font-black uppercase tracking-tighter leading-tight mb-16 text-black">
+            <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight mb-16 text-black">
               Think Films is a professional media production house. We define the visual
               standards of tomorrow.
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-12 overflow-hidden rounded-sm">
+            
+            {/* Improved Flexible Grid for Brands */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-12 overflow-hidden rounded-sm">
               {BRANDS.map((brand, i) => (
                 <div
                   key={i}
-                  className="bg-white flex items-center justify-center p-10 md:p-14 grayscale opacity-40 hover:opacity-100 transition-all duration-700 h-28 md:h-36"
+                  className="bg-white flex items-center justify-center p-6 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 h-24 md:h-32"
                 >
-                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-12 w-auto object-contain" />
+                  <img src={brand.logo} alt={brand.name} className="max-h-6 md:max-h-8 w-auto object-contain" />
                 </div>
               ))}
             </div>
+            
             <Link to="/about" className="text-[11px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity text-black">
               The Philosophy
             </Link>
           </div>
         </section>
 
-        {/* 5. FEATURED WORKS (IMPROVED AUDIO & HIDDEN DOTS) */}
+        {/* 5. FEATURED WORKS (SYNCED PLAYBACK) */}
         <section 
           ref={(el) => { sectionRefs.current[5] = el; }}
           className="snap-section flex flex-col justify-center bg-white overflow-hidden relative"
         >
-          {/* Header */}
-          <div className="w-full px-8 md:px-12 mb-12">
+          <div className="w-full px-8 md:px-12 mb-8">
             <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <p className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-4">Vertical Showcase</p>
-              <h4 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
+              <h4 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
             </div>
           </div>
           
-          {/* Carousel Wrapper with Centered Arrows */}
           <div className="relative w-full px-4 md:px-8 max-w-[1600px] mx-auto">
-            {/* Navigation Arrows - Center Aligned */}
             <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[60]">
-               <button 
-                 onClick={prevSlide}
-                 className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90"
-                 aria-label="Previous Slide"
-               >
-                 <svg className="w-6 h-6 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                 </svg>
+               <button onClick={prevSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                </button>
             </div>
             <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[60]">
-               <button 
-                 onClick={nextSlide}
-                 className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90"
-                 aria-label="Next Slide"
-               >
-                 <svg className="w-6 h-6 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                 </svg>
+               <button onClick={nextSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90">
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                </button>
             </div>
 
-            {/* Video Track */}
             <div className={`w-full overflow-hidden transition-all duration-[1500ms] ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
               <div 
                 className="flex transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)]"
                 style={{ transform: `translateX(-${carouselIndex * (100 / (window.innerWidth < 768 ? 1 : 3))}%)` }}
               >
-                {showcaseVideos.map((id, idx) => (
-                  <div 
-                    key={id} 
-                    className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-10"
-                  >
-                    <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg scale-[0.98] transition-transform duration-700 hover:scale-[1.01]">
-                      <YouTubeEmbed videoId={id} active={activeIndex === 5} />
-                      <div className="absolute bottom-8 left-8 z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                        <span className="text-[9px] font-black text-white uppercase tracking-[0.4em] drop-shadow-lg">Archive / 0{idx + 1}</span>
-                        <h5 className="text-xl text-white font-black uppercase tracking-tighter mt-1 drop-shadow-lg">Short Film</h5>
+                {showcaseVideos.map((id, idx) => {
+                  const itemsPerPage = window.innerWidth < 768 ? 1 : 3;
+                  const isVisible = idx >= carouselIndex && idx < carouselIndex + itemsPerPage;
+                  const shouldPlay = isVisible && activeIndex === 5;
+                  
+                  return (
+                    <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8">
+                      <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg scale-[0.98] transition-transform duration-700 hover:scale-[1.01]">
+                        <YouTubeEmbed videoId={id} active={activeIndex === 5} shouldPlay={shouldPlay} />
+                        <div className="absolute bottom-6 left-6 z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                          <span className="text-[9px] font-black text-white uppercase tracking-[0.4em]">Archive / 0{idx + 1}</span>
+                          <h5 className="text-lg text-white font-black uppercase tracking-tighter mt-1">Short Film</h5>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
-          </div>
-
-          <div className="mt-12 px-12 md:px-24">
-             <div className="w-full h-px bg-neutral-100"></div>
           </div>
         </section>
 
@@ -507,28 +500,20 @@ const Home: React.FC = () => {
           ref={(el) => { sectionRefs.current[6] = el; }}
           className="snap-section flex flex-col items-center justify-center bg-white px-8"
         >
-          <div
-            className={`w-full max-w-7xl text-center transition-all duration-[1500ms] transform ${
-              activeIndex === 6 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-            }`}
-          >
-            <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-16">
-              Global Presence
-            </p>
+          <div className={`w-full max-w-7xl text-center transition-all duration-[1500ms] transform ${activeIndex === 6 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-16">Global Presence</p>
             <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-40">
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default text-black">India</h4>
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter text-black">India</h4>
               <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default text-black">UAE</h4>
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter text-black">UAE</h4>
             </div>
             <div className="mt-24">
-              <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">
-                Initiate commission
-              </Link>
+              <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">Initiate commission</Link>
             </div>
           </div>
         </section>
 
-        {/* 7. FINAL CTA & FOOTER INTEGRATION */}
+        {/* 7. FINAL CTA & FOOTER */}
         <section 
           ref={(el) => { sectionRefs.current[7] = el; }}
           className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar"
