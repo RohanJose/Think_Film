@@ -19,10 +19,10 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   onToggleMute,
   dark = true,
 }) => (
-  <div className="absolute top-[85px] md:top-auto md:bottom-10 left-6 md:left-12 z-[80] flex items-center space-x-3">
+  <div className="absolute top-28 md:top-auto md:bottom-10 left-6 md:left-12 z-[120] flex items-center space-x-4">
     <button
       onClick={onTogglePlay}
-      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md ${
+      className={`w-12 h-12 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md active:scale-90 ${
         dark
           ? 'border-white/20 bg-black/30 hover:bg-white hover:border-white'
           : 'border-black/10 bg-white/30 hover:bg-black hover:border-black'
@@ -52,7 +52,7 @@ const VideoControls: React.FC<SectionControlsProps> = ({
     </button>
     <button
       onClick={onToggleMute}
-      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all group relative backdrop-blur-md ${
+      className={`w-12 h-12 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group relative backdrop-blur-md active:scale-90 ${
         dark
           ? 'border-white/20 bg-black/30 hover:bg-white hover:border-white'
           : 'border-black/10 bg-white/30 hover:bg-black hover:border-black'
@@ -303,7 +303,7 @@ const Home: React.FC = () => {
 
   return (
     <main className="relative h-screen w-full bg-white">
-      {/* Side Navigation Dots - Hidden specifically for section 5 */}
+      {/* Side Navigation Dots */}
       <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <button
@@ -404,7 +404,7 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS (MOBILE LOGO SCROLL) */}
+        {/* 4. PHILOSOPHY & BRANDS */}
         <section 
           ref={(el) => { sectionRefs.current[4] = el; }}
           className="snap-section flex flex-col items-center justify-center bg-white px-6 md:px-8 py-12"
@@ -422,14 +422,14 @@ const Home: React.FC = () => {
               standards of tomorrow.
             </h3>
             
-            {/* Horizontal scroll for brands on mobile, grid on desktop */}
+            {/* Improved Brand Scroll for Mobile */}
             <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 gap-px bg-neutral-100 border border-neutral-100 mb-8 md:mb-12 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
               {BRANDS.map((brand, i) => (
                 <div
                   key={i}
-                  className="bg-white flex-shrink-0 w-[45vw] sm:w-[30vw] md:w-auto flex items-center justify-center p-6 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-video sm:aspect-auto sm:h-24 md:h-32 snap-center"
+                  className="bg-white flex-shrink-0 w-[60vw] sm:w-[30vw] md:w-auto flex items-center justify-center p-8 md:p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] sm:aspect-auto sm:h-24 md:h-32 snap-center"
                 >
-                  <img src={brand.logo} alt={brand.name} className="max-h-6 md:max-h-8 w-auto object-contain" />
+                  <img src={brand.logo} alt={brand.name} className="max-h-8 md:max-h-8 w-auto object-contain" />
                 </div>
               ))}
             </div>
@@ -440,7 +440,7 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. FEATURED WORKS (OPTIMIZED PLAYBACK) */}
+        {/* 5. FEATURED WORKS */}
         <section 
           ref={(el) => { sectionRefs.current[5] = el; }}
           className="snap-section flex flex-col justify-center bg-white overflow-hidden relative"
@@ -493,7 +493,10 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <VideoControls isPlaying={isPlaying} isMuted={isMuted} onTogglePlay={togglePlay} onToggleMute={toggleMute} dark={activeIndex === 5} />
+          {/* Global controls hidden on mobile for Gallery as requested */}
+          <div className="hidden md:block">
+            <VideoControls isPlaying={isPlaying} isMuted={isMuted} onTogglePlay={togglePlay} onToggleMute={toggleMute} dark={activeIndex === 5} />
+          </div>
         </section>
 
         {/* 6. GLOBAL PRODUCTION NETWORK */}
