@@ -19,7 +19,7 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   onToggleMute,
   dark = true,
 }) => (
-  <div className="absolute top-28 right-6 md:top-auto md:bottom-10 md:right-10 z-[80] flex items-center space-x-3">
+  <div className="absolute bottom-10 left-6 md:left-12 z-[80] flex items-center space-x-3">
     <button
       onClick={onTogglePlay}
       className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md ${
@@ -78,11 +78,83 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   </div>
 );
 
+const YouTubeEmbed: React.FC<{ videoId: string; active: boolean }> = ({ videoId, active }) => {
+  const [isMuted, setIsMuted] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const toggleMute = () => {
+    const newMuteState = !isMuted;
+    setIsMuted(newMuteState);
+    
+    if (iframeRef.current) {
+      // Note: YouTube API uses 'unMute' with capital M.
+      const command = newMuteState ? 'mute' : 'unMute';
+      iframeRef.current.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: command, args: '' }),
+        '*'
+      );
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full overflow-hidden bg-black group rounded-lg shadow-2xl">
+      {active ? (
+        <div className="absolute inset-0 pointer-events-none">
+          <iframe
+            ref={iframeRef}
+            className="absolute inset-x-0 top-[-10%] h-[120%] w-full pointer-events-none"
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&origin=${window.location.origin}`}
+            title="Shorts player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] group-hover:scale-110"
+          style={{ backgroundImage: `url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg)` }}
+        />
+      )}
+      
+      {/* Cinematic Overlays */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/60 pointer-events-none"></div>
+      <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none"></div>
+      <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black/40 to-transparent z-10 pointer-events-none"></div>
+      <div className="absolute inset-0 z-20 transition-colors duration-700 bg-black/20 group-hover:bg-transparent pointer-events-none"></div>
+
+      {/* Audio Mute/Unmute Toggle Button */}
+      {active && (
+        <button
+          onClick={toggleMute}
+          className="absolute bottom-6 right-6 z-[40] flex items-center space-x-3 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/20 transition-all hover:bg-white hover:border-white group/mute active:scale-95"
+          title={isMuted ? "Unmute" : "Mute"}
+        >
+          <span className={`text-[8px] font-black uppercase tracking-widest transition-colors ${isMuted ? 'text-white group-hover/mute:text-black' : 'text-white group-hover/mute:text-black'}`}>
+            {isMuted ? 'Audio Off' : 'Audio On'}
+          </span>
+          <svg
+            className={`w-3.5 h-3.5 transition-colors ${isMuted ? 'text-white group-hover/mute:text-black' : 'text-white group-hover/mute:text-black'}`}
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {isMuted ? (
+              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+            ) : (
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            )}
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+};
+
 const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const playPromises = useRef<Record<number, Promise<void> | null>>({});
@@ -192,27 +264,62 @@ const Home: React.FC = () => {
     },
   ];
 
+
+  const showcaseVideos = [
+    'Jdk7xznnWhg', 
+    'XFRclyarPMg',
+    'QOxAQP8Pskc',  
+    's0ztwLgwSTQ', 
+    'dPznKuQftNc', 
+    'u9CzZL7WNsk'
+  ];
+
+  const nextSlide = () => {
+    const itemsPerPage = window.innerWidth < 768 ? 1 : 3;
+    if (carouselIndex < showcaseVideos.length - itemsPerPage) {
+      setCarouselIndex(prev => prev + 1);
+    } else {
+      setCarouselIndex(0);
+    }
+  };
+
+  const prevSlide = () => {
+    if (carouselIndex > 0) {
+      setCarouselIndex(prev => prev - 1);
+    } else {
+      const itemsPerPage = window.innerWidth < 768 ? 1 : 3;
+      setCarouselIndex(showcaseVideos.length - itemsPerPage);
+    }
+  };
+
   return (
     <main className="relative h-screen w-full bg-white">
-      {/* Side Navigation Dots */}
-      <div className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-[90] hidden md:flex flex-col space-y-6">
-        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+      {/* Side Navigation Dots - Hidden specifically for the Motion Gallery (index 5) */}
+      <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 pointer-events-none translate-x-10' : 'opacity-100'}`}>
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <button
             key={i}
-            onClick={() => scrollTo(i)}
-            className="group relative flex items-center justify-center w-6 h-6"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollTo(i);
+            }}
+            className="group relative flex items-center justify-center w-10 h-10 transition-transform active:scale-90"
+            aria-label={`Go to section ${i + 1}`}
           >
             <div
-              className={`transition-all duration-700 rounded-full border ${
+              className={`transition-all duration-700 rounded-full border-2 ${
                 activeIndex === i
-                  ? activeIndex === 0 || activeIndex >= 4
-                    ? 'w-4 h-4 bg-black border-black ring-8 ring-black/5'
-                    : 'w-4 h-4 bg-white border-white ring-8 ring-white/10'
-                  : activeIndex === 0 || activeIndex >= 4
-                  ? 'w-1.5 h-1.5 bg-black/20 border-black/5 hover:bg-black'
-                  : 'w-1.5 h-1.5 bg-white/40 border-white/5 hover:bg-white'
+                  ? (activeIndex === 0 || activeIndex >= 4)
+                    ? 'w-3 h-3 bg-black border-black ring-4 ring-black/10'
+                    : 'w-3 h-3 bg-white border-white ring-4 ring-white/20'
+                  : (activeIndex === 0 || activeIndex >= 4)
+                  ? 'w-1.5 h-1.5 bg-black/20 border-transparent group-hover:bg-black/80'
+                  : 'w-1.5 h-1.5 bg-white/40 border-transparent group-hover:bg-white'
               }`}
             ></div>
+            <span className={`absolute right-12 text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap ${(activeIndex === 0 || activeIndex >= 4) ? 'text-black' : 'text-white'}`}>
+              0{i + 1}
+            </span>
           </button>
         ))}
       </div>
@@ -327,23 +434,91 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. GLOBAL PRODUCTION NETWORK - MINIMALIST VERSION */}
+        {/* 5. FEATURED WORKS (IMPROVED AUDIO & HIDDEN DOTS) */}
         <section 
           ref={(el) => { sectionRefs.current[5] = el; }}
+          className="snap-section flex flex-col justify-center bg-white overflow-hidden relative"
+        >
+          {/* Header */}
+          <div className="w-full px-8 md:px-12 mb-12">
+            <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <p className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-4">Vertical Showcase</p>
+              <h4 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
+            </div>
+          </div>
+          
+          {/* Carousel Wrapper with Centered Arrows */}
+          <div className="relative w-full px-4 md:px-8 max-w-[1600px] mx-auto">
+            {/* Navigation Arrows - Center Aligned */}
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[60]">
+               <button 
+                 onClick={prevSlide}
+                 className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90"
+                 aria-label="Previous Slide"
+               >
+                 <svg className="w-6 h-6 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                 </svg>
+               </button>
+            </div>
+            <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[60]">
+               <button 
+                 onClick={nextSlide}
+                 className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-black hover:text-white transition-all duration-500 group shadow-xl active:scale-90"
+                 aria-label="Next Slide"
+               >
+                 <svg className="w-6 h-6 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                 </svg>
+               </button>
+            </div>
+
+            {/* Video Track */}
+            <div className={`w-full overflow-hidden transition-all duration-[1500ms] ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
+              <div 
+                className="flex transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)]"
+                style={{ transform: `translateX(-${carouselIndex * (100 / (window.innerWidth < 768 ? 1 : 3))}%)` }}
+              >
+                {showcaseVideos.map((id, idx) => (
+                  <div 
+                    key={id} 
+                    className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-10"
+                  >
+                    <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg scale-[0.98] transition-transform duration-700 hover:scale-[1.01]">
+                      <YouTubeEmbed videoId={id} active={activeIndex === 5} />
+                      <div className="absolute bottom-8 left-8 z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                        <span className="text-[9px] font-black text-white uppercase tracking-[0.4em] drop-shadow-lg">Archive / 0{idx + 1}</span>
+                        <h5 className="text-xl text-white font-black uppercase tracking-tighter mt-1 drop-shadow-lg">Short Film</h5>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 px-12 md:px-24">
+             <div className="w-full h-px bg-neutral-100"></div>
+          </div>
+        </section>
+
+        {/* 6. GLOBAL PRODUCTION NETWORK */}
+        <section 
+          ref={(el) => { sectionRefs.current[6] = el; }}
           className="snap-section flex flex-col items-center justify-center bg-white px-8"
         >
           <div
             className={`w-full max-w-7xl text-center transition-all duration-[1500ms] transform ${
-              activeIndex === 5 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              activeIndex === 6 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
             <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-16">
               Global Presence
             </p>
             <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-40">
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default">India</h4>
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default text-black">India</h4>
               <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
-              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default">UAE</h4>
+              <h4 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter hover:scale-105 transition-transform duration-700 cursor-default text-black">UAE</h4>
             </div>
             <div className="mt-24">
               <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">
@@ -353,9 +528,9 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 6. FINAL CTA & FOOTER INTEGRATION */}
+        {/* 7. FINAL CTA & FOOTER INTEGRATION */}
         <section 
-          ref={(el) => { sectionRefs.current[6] = el; }}
+          ref={(el) => { sectionRefs.current[7] = el; }}
           className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar"
         >
           <div className="flex-grow flex flex-col items-center justify-center py-24 md:py-32 px-8">
