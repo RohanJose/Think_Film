@@ -238,13 +238,12 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS (OPTIMIZED) */}
+        {/* 4. PHILOSOPHY & BRANDS */}
         <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-section flex flex-col items-center justify-start pt-24 md:pt-40 bg-white px-6 md:px-8">
           <div className={`max-w-6xl w-full text-center transition-all duration-[1500ms] ${activeIndex === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-4">Core Identity</p>
             <h3 className="text-lg md:text-3xl font-black uppercase tracking-tighter leading-tight mb-8 text-black">We define the visual standards of tomorrow.</h3>
             
-            {/* Strict 4-column Grid on Desktop */}
             <div className="flex md:grid md:grid-cols-4 gap-px bg-neutral-100 border border-neutral-100 mb-8 overflow-x-auto md:overflow-hidden hide-scrollbar snap-x snap-mandatory">
               {BRANDS.slice(0, 8).map((brand, i) => (
                 <div key={i} className="bg-white flex-shrink-0 w-[60vw] md:w-auto flex items-center justify-center p-8 grayscale opacity-40 hover:opacity-100 transition-all duration-700 aspect-[16/9] md:h-40 snap-center">
@@ -256,24 +255,23 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. MOTION GALLERY (FIXED OVERLAP) */}
-        <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col justify-start pt-24 md:pt-32 bg-white overflow-hidden relative">
-          <div className="w-full px-8 md:px-12 mb-6 md:mb-10">
+        {/* 5. ARCHIVE (Heading Replaced & Sizes Restored) */}
+        <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col justify-start pt-[90px] md:pt-[100px] bg-white overflow-hidden relative">
+          <div className="w-full px-8 md:px-12 mb-8">
             <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <p className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-2">Archive</p>
-              <h4 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Motion Gallery.</h4>
+              <h4 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Archive.</h4>
             </div>
           </div>
           
           <div className="relative w-full px-4 md:px-8 max-w-[1600px] mx-auto">
             <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-2 z-[60]">
-               <button onClick={prevSlide} className="w-10 h-10 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
-                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+               <button onClick={prevSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                </button>
             </div>
             <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-2 z-[60]">
-               <button onClick={nextSlide} className="w-10 h-10 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
-                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+               <button onClick={nextSlide} className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black/10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-xl active:scale-90 transition-all">
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                </button>
             </div>
 
@@ -284,7 +282,7 @@ const Home: React.FC = () => {
               >
                 {showcaseVideos.map((id, idx) => (
                   <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8">
-                    <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg scale-[0.98] transition-all duration-700 hover:scale-[1.01]">
+                    <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-lg transition-all duration-700 hover:scale-[1.01]">
                       <YouTubeEmbed videoId={id} active={activeIndex === 5} shouldPlay={(window.innerWidth < 768 ? idx === carouselIndex : true) && activeIndex === 5} />
                     </div>
                   </div>
@@ -299,9 +297,9 @@ const Home: React.FC = () => {
           <div className={`w-full max-w-7xl text-center transition-all duration-[1500ms] ${activeIndex === 6 ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-8">Global Reach</p>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-40">
-              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter">India</h4>
+              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black">India</h4>
               <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
-              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter">UAE</h4>
+              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black">UAE</h4>
             </div>
             <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px] mt-12">Initiate Commission</Link>
           </div>
