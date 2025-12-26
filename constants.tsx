@@ -44,5 +44,12 @@ export const BRANDS: BrandPartner[] = [
   { name: 'JK Tyres', logo: '/jk_tyres.png' },
   { name: 'Litmus7', logo: '/kia.png' },
   { name: 'KIA', logo: '/litmus_7.jpeg' },
-  { name: 'Gokulam', logo: '/gokulam.png' }
+  { name: 'Gokulam', logo: '/gokulam.png' },
+  { name: 'bacardi', logo: '/bacardi.png' },
+  { name: 'spotify', logo: '/spotify_logo.jpg' },
+  { name: 'Moonlight', logo: '/moonlight.png' },
+
+  { name: 'Ritu', logo: '/ritu_logo.png' }
+
+
 ];

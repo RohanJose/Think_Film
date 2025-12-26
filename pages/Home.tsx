@@ -224,20 +224,20 @@ const Home: React.FC = () => {
           className="snap-section flex flex-col items-center justify-center bg-white relative"
         >
           <div
-            className={`relative z-10 text-center px-6 transition-all duration-[1500ms] transform ${
+            className={`relative z-10 text-center px-4 transition-all duration-[1500ms] transform ${
               activeIndex === 0
                 ? 'translate-y-0 opacity-100 scale-100'
                 : 'translate-y-10 opacity-0 scale-95'
             }`}
           >
-            <div className="flex justify-center mb-2">
+            <div className="flex justify-center mb-8 md:mb-12">
               <img
                 src="/colored-logo.png"
                 alt="Think Films"
-                className="h-32 md:h-48 lg:h-56 w-auto select-none"  
+                className="h-[45vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] w-auto max-w-[90vw] select-none transition-transform duration-1000 object-contain"  
               />
             </div>
-            <p className="text-[10px] md:text-[11px] uppercase tracking-[1em] font-black text-black/40">
+            <p className="text-[10px] sm:text-[12px] md:text-[14px] uppercase tracking-[1em] sm:tracking-[1.5em] font-black text-black/40">
               MEDIA PRODUCTION HOUSE
             </p>
           </div>
