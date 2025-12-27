@@ -21,39 +21,44 @@ const VideoControls: React.FC<SectionControlsProps> = ({
 }) => (
   <div className="absolute top-28 md:top-auto md:bottom-10 left-6 md:left-12 z-[120] flex items-center space-x-4">
     <button
-      onClick={onTogglePlay}
-      className={`w-12 h-12 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md active:scale-90 ${
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onTogglePlay();
+      }}
+      className={`w-14 h-14 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group backdrop-blur-md active:scale-95 ${
         dark
-          ? 'border-white/20 bg-black/30 hover:bg-white hover:border-white'
-          : 'border-black/10 bg-white/30 hover:bg-black hover:border-black'
+          ? 'border-white/20 bg-black/40 hover:bg-white hover:border-white'
+          : 'border-black/10 bg-white/40 hover:bg-black hover:border-black'
       }`}
     >
       {isPlaying ? (
-        <svg className={`w-4 h-4 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-5 h-5 md:w-4 md:h-4 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
         </svg>
       ) : (
-        <svg className={`w-4 h-4 ml-1 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-5 h-5 md:w-4 md:h-4 ml-1 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
           <path d="M8 5v14l11-7z" />
         </svg>
       )}
     </button>
     <button
       onClick={(e) => {
+        e.preventDefault();
         e.stopPropagation();
         onToggleMute();
       }}
-      className={`w-12 h-12 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group relative backdrop-blur-md active:scale-90 ${
+      className={`w-14 h-14 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all group relative backdrop-blur-md active:scale-95 ${
         dark
-          ? 'border-white/20 bg-black/30 hover:bg-white hover:border-white'
-          : 'border-black/10 bg-white/30 hover:bg-black hover:border-black'
+          ? 'border-white/20 bg-black/40 hover:bg-white hover:border-white'
+          : 'border-black/10 bg-white/40 hover:bg-black hover:border-black'
       }`}
     >
-      <svg className={`w-4 h-4 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
+      <svg className={`w-5 h-5 md:w-4 md:h-4 ${dark ? 'text-white group-hover:text-black' : 'text-black group-hover:text-white'}`} fill="currentColor" viewBox="0 0 24 24">
         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
       </svg>
       {isMuted && (
-        <div className={`absolute w-[1px] h-6 rotate-45 pointer-events-none ${dark ? 'bg-white group-hover:bg-black' : 'bg-black group-hover:bg-white'}`}></div>
+        <div className={`absolute w-[1.5px] h-7 md:h-6 rotate-45 pointer-events-none ${dark ? 'bg-white group-hover:bg-black' : 'bg-black group-hover:bg-white'}`}></div>
       )}
     </button>
   </div>
@@ -76,28 +81,35 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     }
   };
 
+  // Initial play trigger
   useEffect(() => {
     if (active && isReady) {
-      const command = (shouldPlay && isPlayingLocally) ? 'playVideo' : 'pauseVideo';
-      postCommand(command);
+      // Small timeout helps ensure mobile browser bridge is actually listening
+      const timer = setTimeout(() => {
+        if (shouldPlay && isPlayingLocally) {
+          postCommand('playVideo');
+        } else {
+          postCommand('pauseVideo');
+        }
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [shouldPlay, active, isPlayingLocally, isReady]);
 
+  // Unified audio control effect with higher reliability sequence
   useEffect(() => {
     if (active && isReady) {
       if (effectiveMute) {
         postCommand('mute');
       } else {
-        // Multi-command sequence to force audio activation on mobile
+        // Aggressive sequence to force audio on mobile
         postCommand('unMute');
         postCommand('setVolume', [100]);
-        // Re-trigger play just in case mobile browser paused it on unmute
-        if (shouldPlay && isPlayingLocally) {
-          postCommand('playVideo');
-        }
+        // Re-ping play because mobile browsers often pause media when unmuting if not already playing
+        postCommand('playVideo');
       }
     }
-  }, [effectiveMute, active, isReady, shouldPlay, isPlayingLocally]);
+  }, [effectiveMute, active, isReady]);
 
   return (
     <div className={`relative w-full h-full overflow-hidden bg-black group shadow-2xl ${isHero ? '' : 'rounded-xl'}`}>
@@ -106,7 +118,11 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
           <div className={isHero ? "absolute top-1/2 left-1/2 w-[300vw] h-[300vh] md:w-[150vw] md:h-[150vh] -translate-x-1/2 -translate-y-1/2" : "absolute inset-0 w-full h-full"}>
             <iframe
               ref={iframeRef}
-              onLoad={() => setIsReady(true)}
+              onLoad={() => {
+                setIsReady(true);
+                // Force immediate play message on load to beat mobile sleep cycles
+                postCommand('playVideo');
+              }}
               className="absolute inset-0 w-full h-full object-cover"
               src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1&playsinline=1&origin=${window.location.origin}`}
               title={isHero ? `Hero Section Video` : `Archive Video ${index + 1}`}
@@ -133,12 +149,12 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
                   e.stopPropagation();
                   setIsPlayingLocally(!isPlayingLocally);
                 }} 
-                className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all hover:bg-white hover:text-black shadow-2xl"
+                className="w-14 h-14 rounded-full bg-black/60 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white hover:text-black shadow-2xl"
               >
                 {isPlayingLocally ? (
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                 ) : (
-                  <svg className="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 )}
               </button>
               <button 
@@ -146,9 +162,9 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
                   e.stopPropagation();
                   setLocalMute(!localMute);
                 }} 
-                className={`w-12 h-12 rounded-full backdrop-blur-2xl border flex items-center justify-center transition-all active:scale-90 shadow-2xl ${!localMute ? 'bg-blue-600 border-blue-400 text-white' : 'bg-black/60 border-white/10 text-white hover:bg-white hover:text-black'}`}
+                className={`w-14 h-14 rounded-full backdrop-blur-2xl border flex items-center justify-center transition-all active:scale-95 shadow-2xl ${!localMute ? 'bg-blue-600 border-blue-400 text-white' : 'bg-black/60 border-white/10 text-white hover:bg-white hover:text-black'}`}
               >
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   {!localMute ? (
                     <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                   ) : (
