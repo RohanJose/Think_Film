@@ -56,10 +56,13 @@ const VideoControls: React.FC<SectionControlsProps> = ({
   </div>
 );
 
-const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boolean; index: number }> = ({ videoId, active, shouldPlay, index }) => {
-  const [isMuted, setIsMuted] = useState(true);
+const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boolean; index: number; isHero?: boolean; isMuted?: boolean }> = ({ videoId, active, shouldPlay, index, isHero = false, isMuted: externalMute = true }) => {
+  const [localMute, setLocalMute] = useState(true);
   const [isPlayingLocally, setIsPlayingLocally] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Effective mute state depends on whether it's a hero or an archive item
+  const effectiveMute = isHero ? externalMute : localMute;
 
   useEffect(() => {
     if (iframeRef.current && active) {
@@ -71,17 +74,28 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     }
   }, [shouldPlay, active, isPlayingLocally]);
 
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newMuteState = !isMuted;
-    setIsMuted(newMuteState);
-    if (iframeRef.current) {
-      const command = newMuteState ? 'mute' : 'unMute';
+  // Unified audio control effect
+  useEffect(() => {
+    if (iframeRef.current && active) {
+      const command = effectiveMute ? 'mute' : 'unMute';
       iframeRef.current.contentWindow?.postMessage(
         JSON.stringify({ event: 'command', func: command, args: '' }),
         '*'
       );
+      
+      // On mobile, sometimes unMute alone isn't enough, we force volume too
+      if (!effectiveMute) {
+        iframeRef.current.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }),
+          '*'
+        );
+      }
     }
+  }, [effectiveMute, active]);
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLocalMute(!localMute);
   };
 
   const togglePlayLocal = (e: React.MouseEvent) => {
@@ -90,75 +104,57 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-black group rounded-xl shadow-2xl">
-      {/* 
-          MASKING WRAPPER:
-          Aggressively hide the YouTube logo and title bar by scaling the iframe.
-      */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden scale-[1.25] -top-[12%] -left-[12%] w-[124%] h-[124%]">
+    <div className={`relative w-full h-full overflow-hidden bg-black group shadow-2xl ${isHero ? '' : 'rounded-xl'}`}>
+      <div className={`absolute inset-0 z-0 pointer-events-none overflow-hidden ${isHero ? 'video-breath' : 'scale-[1.25] -top-[12%] -left-[12%] w-[124%] h-[124%]'}`}>
         {active ? (
-          <iframe
-            ref={iframeRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=${shouldPlay ? 1 : 0}&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1&playsinline=1&origin=${window.location.origin}`}
-            title={`Archive Video ${index + 1}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
+          <div className={isHero ? "absolute top-1/2 left-1/2 w-[300vw] h-[300vh] md:w-[150vw] md:h-[150vh] -translate-x-1/2 -translate-y-1/2" : "absolute inset-0 w-full h-full"}>
+            <iframe
+              ref={iframeRef}
+              className="absolute inset-0 w-full h-full object-cover"
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=${shouldPlay ? 1 : 0}&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1&playsinline=1&origin=${window.location.origin}`}
+              title={isHero ? `Hero Section Video` : `Archive Video ${index + 1}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
         ) : (
           <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] group-hover:scale-110"
+            className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg)` }}
           />
         )}
       </div>
 
-      {/* GRADIENT OVERLAY */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none opacity-95"></div>
+      <div className={`absolute inset-0 z-10 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none ${isHero ? 'video-cinematic-overlay opacity-90' : 'opacity-95'}`}></div>
 
-      {/* CUSTOM UI OVERLAYS */}
-      <div className="absolute inset-0 z-20 p-6 md:p-10 flex flex-col justify-end">
-        <div className="flex flex-col space-y-8 w-full">
-          {/* Dual Circular Controls (Play & Audio next to each other) */}
-          <div className="flex items-center space-x-3 pointer-events-auto">
-            {/* Play/Pause Button */}
-            <button 
-              onClick={togglePlayLocal} 
-              className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all hover:bg-white hover:text-black shadow-2xl"
-            >
-              {isPlayingLocally ? (
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-              ) : (
-                <svg className="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-              )}
-            </button>
-            
-            {/* Audio Toggle Button (Circular style matching Play button) */}
-            <button 
-              onClick={toggleMute} 
-              className={`w-12 h-12 rounded-full backdrop-blur-2xl border flex items-center justify-center transition-all active:scale-90 shadow-2xl ${
-                !isMuted 
-                  ? 'bg-blue-600 border-blue-400 text-white' 
-                  : 'bg-black/60 border-white/10 text-white hover:bg-white hover:text-black'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                {isMuted ? (
-                  <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71z" />
+      {!isHero && (
+        <div className="absolute inset-0 z-20 p-6 md:p-10 flex flex-col justify-end">
+          <div className="flex flex-col space-y-8 w-full">
+            <div className="flex items-center space-x-3 pointer-events-auto">
+              <button onClick={togglePlayLocal} className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all hover:bg-white hover:text-black shadow-2xl">
+                {isPlayingLocally ? (
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                 ) : (
-                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                  <svg className="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 )}
-              </svg>
-            </button>
-          </div>
-
-          {/* Typography Overlay */}
-          <div className="text-white text-left pointer-events-none">
-            <p className="text-[10px] font-black uppercase tracking-[0.6em] mb-1 opacity-100">Archive / 0{index + 1}</p>
-            <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none">Shorts</h3>
+              </button>
+              <button onClick={toggleMute} className={`w-12 h-12 rounded-full backdrop-blur-2xl border flex items-center justify-center transition-all active:scale-90 shadow-2xl ${!localMute ? 'bg-blue-600 border-blue-400 text-white' : 'bg-black/60 border-white/10 text-white hover:bg-white hover:text-black'}`}>
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                  {!localMute ? (
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                  ) : (
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71z" />
+                  )}
+                </svg>
+              </button>
+            </div>
+            <div className="text-white text-left pointer-events-none">
+              <p className="text-[10px] font-black uppercase tracking-[0.6em] mb-1 opacity-100">Archive / 0{index + 1}</p>
+              <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none">Shorts</h3>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -166,16 +162,24 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
 const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const playPromises = useRef<Record<number, Promise<void> | null>>({});
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleVideoPlayback = async (index: number, shouldPlay: boolean) => {
     const video = videoRefs.current[index];
-    if (!video) return;
+    if (!video || isMobile) return;
+    
     if (shouldPlay && isPlaying) {
       if (video.paused) {
         try {
@@ -204,8 +208,10 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    videoRefs.current.forEach((_, i) => handleVideoPlayback(i, i === activeIndex));
-  }, [activeIndex, isPlaying]);
+    if (!isMobile) {
+      videoRefs.current.forEach((_, i) => handleVideoPlayback(i, i === activeIndex));
+    }
+  }, [activeIndex, isPlaying, isMobile]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -228,9 +234,9 @@ const Home: React.FC = () => {
   };
 
   const videoSections = [
-    { id: 'automotive', title: 'AUTOMOTIVE', subtitle: 'PRECISION IN MOTION', src: 'automative1.webm', link: '/automotive', btnText: 'EXPLORE AUTOMOTIVE' },
-    { id: 'corporate', title: 'CORPORATE', subtitle: 'EDITORIAL LEADERSHIP', src: 'coperate1.webm', link: '/corporate', btnText: 'EXPLORE CORPORATE' },
-    { id: 'concerts', title: 'CONCERTS', subtitle: 'LIVE ENERGY', src: 'concert1.webm', link: '/concerts', btnText: 'EXPLORE CONCERTS' },
+    { id: 'automotive', title: 'AUTOMOTIVE', subtitle: 'PRECISION IN MOTION', youtubeId: '9O5uwYhQGNw', src: 'automative1.webm', link: '/automotive', btnText: 'EXPLORE AUTOMOTIVE' },
+    { id: 'corporate', title: 'CORPORATE', subtitle: 'EDITORIAL LEADERSHIP', youtubeId: 'C9U7qmiFusw', src: 'coperate1.webm', link: '/corporate', btnText: 'EXPLORE CORPORATE' },
+    { id: 'concerts', title: 'CONCERTS', subtitle: 'LIVE ENERGY', youtubeId: 'p774Dv6ndLc', src: 'concert1.webm', link: '/concerts', btnText: 'EXPLORE CONCERTS' },
   ];
 
   const showcaseVideos = ['Jdk7xznnWhg', 'XFRclyarPMg', 'QOxAQP8Pskc', 's0ztwLgwSTQ', 'dPznKuQftNc', 'u9CzZL7WNsk'];
@@ -247,7 +253,6 @@ const Home: React.FC = () => {
 
   return (
     <main className="relative h-screen w-full bg-white">
-      {/* Side Navigation Dots */}
       <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 scale-90' : 'opacity-100'}`}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <button key={i} onClick={() => scrollTo(i)} className="group relative flex items-center justify-center w-10 h-10 active:scale-90">
@@ -257,7 +262,6 @@ const Home: React.FC = () => {
       </div>
 
       <div ref={containerRef} className="snap-container hide-scrollbar h-full w-full overflow-y-auto">
-        {/* 0. HERO */}
         <section ref={(el) => { sectionRefs.current[0] = el; }} className="snap-section flex flex-col items-center justify-center bg-white">
           <div className={`text-center transition-all duration-[1500ms] ${activeIndex === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <img src="/colored-logo.png" alt="Think Films" className="h-[45vh] sm:h-[60vh] mx-auto object-contain mb-8" />
@@ -265,15 +269,37 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 1, 2, 3. VIDEOS */}
         {videoSections.map((section, idx) => {
           const i = idx + 1;
           return (
-            <section key={section.id} ref={(el) => { sectionRefs.current[i] = el; }} className="snap-section flex items-end justify-center bg-black pb-24 md:pb-32">
-              <video ref={(el) => { videoRefs.current[i] = el; }} muted={isMuted} loop playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover video-breath">
-                <source src={section.src} type="video/webm" />
-              </video>
-              <div className="absolute inset-0 video-cinematic-overlay pointer-events-none"></div>
+            <section key={section.id} ref={(el) => { sectionRefs.current[i] = el; }} className="snap-section flex items-end justify-center bg-black pb-32 md:pb-32">
+              <div className="absolute inset-0 overflow-hidden">
+                {isMobile ? (
+                  <YouTubeEmbed 
+                    videoId={section.youtubeId} 
+                    active={activeIndex === i} 
+                    shouldPlay={activeIndex === i && isPlaying} 
+                    isMuted={isMuted}
+                    index={i} 
+                    isHero={true}
+                  />
+                ) : (
+                  <>
+                    <video 
+                      ref={(el) => { videoRefs.current[i] = el; }} 
+                      muted={isMuted} 
+                      loop 
+                      playsInline 
+                      preload="auto" 
+                      className="absolute inset-0 w-full h-full object-cover video-breath"
+                    >
+                      <source src={section.src} type="video/webm" />
+                    </video>
+                    <div className="absolute inset-0 video-cinematic-overlay opacity-90"></div>
+                  </>
+                )}
+              </div>
+              
               <div className={`relative z-10 text-center transition-all duration-[1500ms] ${activeIndex === i ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 <p className="text-[10px] uppercase tracking-[0.6em] font-black text-white/80 mb-6">{section.subtitle}</p>
                 <h2 className="text-4xl md:text-[8rem] font-black uppercase tracking-tighter text-white mb-10 leading-none">{section.title}</h2>
@@ -284,7 +310,6 @@ const Home: React.FC = () => {
           );
         })}
 
-        {/* 4. PHILOSOPHY & BRANDS */}
         <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-section flex flex-col items-center justify-start pt-24 md:pt-40 bg-white px-6 md:px-8">
           <div className={`max-w-6xl w-full text-center transition-all duration-[1500ms] ${activeIndex === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-4">Core Identity</p>
@@ -301,7 +326,6 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. ARCHIVE */}
         <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col bg-white overflow-hidden relative">
           <div className="absolute top-24 md:top-32 left-8 md:left-12 z-0">
             <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
@@ -338,7 +362,6 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 6. GLOBAL NETWORK */}
         <section ref={(el) => { sectionRefs.current[6] = el; }} className="snap-section flex flex-col items-center justify-center bg-white px-8">
           <div className={`w-full max-w-7xl text-center transition-all duration-[1500ms] ${activeIndex === 6 ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-8">Global Reach</p>
@@ -351,7 +374,6 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 7. FOOTER */}
         <section ref={(el) => { sectionRefs.current[7] = el; }} className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar">
           <div className="flex-grow flex flex-col items-center justify-center py-20 px-8">
             <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-none text-black text-center">Think <br /> Differently.</h2>
