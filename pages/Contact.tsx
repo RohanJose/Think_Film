@@ -30,8 +30,8 @@ const Contact: React.FC = () => {
               <div>
                 <p className="text-[9px] uppercase tracking-[0.5em] font-black text-neutral-300 mb-4">India Studio</p>
                 <p className="text-sm font-bold uppercase tracking-widest leading-relaxed">
-                  _____, _____<br/>
-                  Kochi, 110054
+                 {/* _____, _____<br/>*/}
+                  Kochi, Kerala
                 </p>
               </div>
               <div>

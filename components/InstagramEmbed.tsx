@@ -1,45 +1,24 @@
-import React, { useEffect } from 'react';
+
+import React from 'react';
 
 interface InstagramEmbedProps {
   url: string;
 }
 
 const InstagramEmbed: React.FC<InstagramEmbedProps> = ({ url }) => {
-  useEffect(() => {
-    const scriptSrc = '//www.instagram.com/embed.js';
-
-    if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
-      const script = document.createElement('script');
-      script.src = scriptSrc;
-      script.async = true;
-      document.body.appendChild(script);
-    } else {
-      // @ts-ignore
-      window.instgrm?.Embeds.process();
-    }
-  }, [url]);
+  // Ensure the URL ends with /embed/
+  const embedUrl = url.endsWith('/') ? `${url}embed` : `${url}/embed`;
 
   return (
-    <div className="w-full flex justify-center">
-      <div
-        className="w-full max-w-[420px] overflow-hidden bg-transparent border-none shadow-none rounded-none"
-        dangerouslySetInnerHTML={{
-          __html: `
-            <blockquote
-              class="instagram-media"
-              data-instgrm-permalink="${url}"
-              data-instgrm-version="14"
-              style="
-                background: transparent;
-                border: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                max-width: 100%;
-              ">
-            </blockquote>
-          `,
-        }}
+    <div className="w-full h-full min-h-[450px] bg-white rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
+      <iframe
+        src={embedUrl}
+        className="w-full h-full border-0"
+        allowTransparency={true}
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        frameBorder="0"
+        scrolling="no"
+        title="Instagram Reel"
       />
     </div>
   );

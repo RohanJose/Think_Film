@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
       </div>
       
       <div className="mt-16 md:mt-24 pt-10 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-        <p className="text-[9px] uppercase tracking-widest font-bold text-neutral-300">© 2025 Think Films / Think Music</p>
+        <p className="text-[9px] uppercase tracking-widest font-bold text-neutral-300">© 2025 Think Films</p>
         <div className="flex space-x-8">
           <a href="#" className="text-[9px] uppercase tracking-widest font-black text-neutral-300 hover:text-black transition-colors">Instagram</a>
 

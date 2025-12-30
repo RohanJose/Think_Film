@@ -8,8 +8,8 @@ export const VIDEO_DATA: VideoContent[] = [
     category: 'Automotive',
     thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1920',
     videoUrl: 'automative2.webm',
-    youtubeId: 'dQw4w9WgXcQ', // Placeholder
-    description: 'A high-speed exploration of luxury  vehicles.'
+    youtubeId: '9O5uwYhQGNw',
+    description: 'A high-speed exploration of luxury vehicles.'
   },
   {
     id: 'auto-2',
@@ -17,7 +17,7 @@ export const VIDEO_DATA: VideoContent[] = [
     category: 'Automotive',
     thumbnail: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920',
     videoUrl: '/automative1.webm',
-    youtubeId: 'dQw4w9WgXcQ', // Placeholder
+    youtubeId: 'Jdk7xznnWhg',
     description: 'Showcasing the engineering marvel of contemporary supercars.'
   },
   {
@@ -26,7 +26,7 @@ export const VIDEO_DATA: VideoContent[] = [
     category: 'Corporate',
     thumbnail: 'litmus_thumbnail.png',
     videoUrl: '/coperate1.webm',
-    youtubeId: 'dQw4w9WgXcQ', // Placeholder
+    youtubeId: 'C9U7qmiFusw',
     description: 'Capturing the scale and innovation of Litmus7 summit.'
   },
   {
@@ -35,10 +35,41 @@ export const VIDEO_DATA: VideoContent[] = [
     category: 'Concerts',
     thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=1920',
     videoUrl: '/concert1.webm',
-    youtubeId: 'dQw4w9WgXcQ', // Placeholder
+    youtubeId: 'p774Dv6ndLc',
     description: 'The raw energy of live performance, captured cinematically.'
   }
 ];
+
+export interface ShowcaseItem {
+  id: string;
+  title: string;
+  isPortrait?: boolean;
+}
+
+export const YOUTUBE_SHOWCASE: Record<string, ShowcaseItem[]> = {
+  Automotive: [
+
+
+    { id: 'uJRZrJurAk0', title: 'Vertical Rush', isPortrait: true }, // Added portrait reference
+  
+    { id: 'udmrIsmHEhQ', title: 'Kia' },
+    { id: 'LD2rHiyYRUk', title: 'Energy' },
+   
+  ],
+  Corporate: [
+    { id: 'ihaqSJmFrJs', title: 'Kia' },
+    { id: 'C9U7qmiFusw', title: 'Litmus 7' },
+    
+    
+  ],
+  Concerts: [
+    { id: 'LY2nzfCvfn4', title: 'Bacardi Event', isPortrait: true },
+    { id: 'p774Dv6ndLc', title: 'Electric Energy' },
+
+ 
+    { id: 'nZ3xYJwOE0c', title: 'Live Vision' }
+  ]
+};
 
 export const BRANDS: BrandPartner[] = [
   { name: 'JK Tyres', logo: '/jk_tyres.png' },
@@ -48,8 +79,5 @@ export const BRANDS: BrandPartner[] = [
   { name: 'bacardi', logo: '/bacardi.png' },
   { name: 'spotify', logo: '/spotify_logo.jpg' },
   { name: 'Moonlight', logo: '/moonlight.png' },
-
   { name: 'Ritu', logo: '/ritu_logo.png' }
-
-
 ];

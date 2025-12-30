@@ -1,14 +1,16 @@
+
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { VIDEO_DATA } from '../constants.tsx';
-import VideoPlayer from '../components/VideoPlayer.tsx';
+import { YOUTUBE_SHOWCASE } from '../constants.tsx';
 import InstagramEmbed from '../components/InstagramEmbed.tsx';
+import YouTubeEmbed from '../components/YoutubeEmbed.tsx';
 
 interface ServiceDetailProps {
   category: 'Automotive' | 'Corporate' | 'Concerts';
   title: string;
   subtitle: string;
   description: string;
+  heroImage?: string;
 }
 
 const INSTAGRAM_REELS: Record<ServiceDetailProps['category'], string[]> = {
@@ -34,9 +36,10 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
   title,
   subtitle,
   description,
+  heroImage,
 }) => {
-  const filteredVideos = VIDEO_DATA.filter(v => v.category === category);
   const instagramReels = INSTAGRAM_REELS[category];
+  const youtubeShowcase = YOUTUBE_SHOWCASE[category] || [];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -47,6 +50,11 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
 
       {/* 01. HERO SECTION */}
       <section className="relative h-[80vh] md:h-screen w-full flex flex-col items-center justify-center bg-white overflow-hidden">
+        {heroImage && (
+          <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+            <img src={heroImage} alt={title} className="w-full h-full object-cover grayscale" />
+          </div>
+        )}
         <div className="relative z-10 flex flex-col items-center text-center px-6">
           <p className="text-[10px] md:text-xs uppercase tracking-[1em] font-black text-neutral-400 mb-10">
             {subtitle}
@@ -71,8 +79,42 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         </div>
       </section>
 
-      {/* 02. MANIFESTO & CAPABILITIES */}
-      <section className="py-24 md:py-48 px-6 md:px-12">
+      {/* 02. CINEMATIC SHOWCASE */}
+      <section className="py-24 md:py-32 bg-black text-white px-6 md:px-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-20">
+            <p className="text-[10px] uppercase tracking-[0.6em] text-white/30 mb-4">Featured Motion</p>
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter">Cinematic Showcase.</h2>
+          </div>
+
+          <div className="columns-1 md:columns-2 gap-12 md:gap-20 space-y-12 md:space-y-20">
+            {youtubeShowcase.map((video, idx) => (
+              <div key={video.id} className="break-inside-avoid space-y-6 group">
+                <div 
+                  className={`relative overflow-hidden rounded-2xl shadow-2xl transition-transform duration-700 hover:scale-[1.02] border border-white/5 ${
+                    video.isPortrait ? 'aspect-[9/16] w-full max-w-md mx-auto md:max-w-none' : 'aspect-video w-full'
+                  }`}
+                >
+                   <YouTubeEmbed 
+                    videoId={video.id} 
+                    active={true} 
+                    shouldPlay={false} 
+                    index={idx} 
+                    title={video.title}
+                  />
+                </div>
+                <div>
+                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/40 mb-2">Project / 0{idx + 1}</p>
+                   <h4 className="text-2xl font-black uppercase tracking-tighter">{video.title}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 03. MANIFESTO & CAPABILITIES */}
+      <section className="py-24 md:py-48 px-6 md:px-12 bg-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           <div className="lg:col-span-5 space-y-12">
             <h2 className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300">
@@ -93,7 +135,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
                 : category === 'Corporate'
                 ? 'enterprise'
                 : 'global artists'} brands,
-              the image is not just a recording—it&apos;s a statement of authority.
+              the image is not just a recording it&apos;s a statement of authority.
               <br /><br />
               Utilizing a bespoke color pipeline and specialized tracking equipment,
               we ensure every frame carries the weight of a premium feature film.
@@ -128,8 +170,8 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         </div>
       </section>
 
-      {/* 03. SOCIAL NARRATIVE */}
-      <section className="py-24 md:py-32 bg-white text-black px-6 md:px-12 relative">
+      {/* 04. SOCIAL NARRATIVE */}
+      <section className="py-24 md:py-32 bg-[#fafafa] text-black px-6 md:px-12 relative">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end">
             <div>
@@ -149,72 +191,16 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
             {instagramReels.map((url, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-3xl p-0 shadow-none transition-transform duration-700 hover:-translate-y-2"
+                className="bg-white rounded-3xl p-0 shadow-lg transition-transform duration-700 hover:-translate-y-2 overflow-hidden"
               >
                 <InstagramEmbed url={url} />
               </div>
             ))}
           </div>
-
-          <div className="mt-16 text-center">
-            <div className="flex items-center justify-center space-x-6">
-              <span className="w-12 h-[1px] bg-black/10" />
-              <p className="text-[10px] uppercase tracking-[0.35em] font-bold text-neutral-400">
-                Optimized for Instagram / TikTok / Shorts
-              </p>
-              <span className="w-12 h-[1px] bg-black/10" />
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* 05. MAIN FILM GRID (Archive) */}
-      <section className="py-24 px-6 md:px-12 bg-[#fcfcfc]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-neutral-100 pb-12">
-            <div>
-              <h3 className="text-[10px] uppercase tracking-[0.6em] font-black text-neutral-300 mb-4">
-                Selected Works
-              </h3>
-              <h2 className="text-5xl md:text-[6rem] font-black uppercase tracking-tighter leading-none">
-                The Archive.
-              </h2>
-            </div>
-            <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mt-4 md:mt-0">
-              Filtered / {category}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 md:gap-y-24">
-            {filteredVideos.map(video => (
-              <div key={video.id}>
-                <div className="relative mb-6 border border-neutral-100 p-2 bg-white shadow-sm transition-transform duration-500 hover:scale-[1.03]">
-                  <VideoPlayer
-                    url={video.videoUrl}
-                    poster={video.thumbnail}
-                    title={video.title}
-                  />
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-[10px] font-black text-neutral-200">
-                      00{video.id}
-                    </span>
-                    <h5 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
-                      {video.title}
-                    </h5>
-                  </div>
-                  <p className="text-xs text-neutral-400 uppercase tracking-[0.25em] font-bold leading-loose max-w-md">
-                    {video.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 06. CALL TO ACTION */}
+      {/* 05. CALL TO ACTION */}
       <section className="py-24 md:py-32 bg-black text-white flex flex-col items-center text-center px-6">
         <span className="text-[10px] uppercase tracking-[0.8em] font-black text-white/30 mb-12">
           New Briefs
