@@ -259,7 +259,7 @@ const Home: React.FC = () => {
     { id: 'concerts', title: 'CONCERTS', subtitle: 'LIVE ENERGY', youtubeId: 'p774Dv6ndLc', src: 'concert1.webm', link: '/concerts', btnText: 'EXPLORE CONCERTS' },
   ];
 
-  const showcaseVideos = ['Jdk7xznnWhg', 'XFRclyarPMg', 'QOxAQP8Pskc', 's0ztwLgwSTQ', 'dPznKuQftNc', 'u9CzZL7WNsk'];
+  const showcaseVideos = ['QOxAQP8Pskc','nOQQeeAwGb0','uJRZrJurAk0','Jdk7xznnWhg','XFRclyarPMg', 's0ztwLgwSTQ'];
 
   const nextSlide = () => {
     const itemsPerPage = window.innerWidth < 768 ? 1 : 3;
