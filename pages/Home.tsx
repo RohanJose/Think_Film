@@ -81,10 +81,8 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     }
   };
 
-  // Initial play trigger
   useEffect(() => {
     if (active && isReady) {
-      // Small timeout helps ensure mobile browser bridge is actually listening
       const timer = setTimeout(() => {
         if (shouldPlay && isPlayingLocally) {
           postCommand('playVideo');
@@ -96,16 +94,13 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
     }
   }, [shouldPlay, active, isPlayingLocally, isReady]);
 
-  // Unified audio control effect with higher reliability sequence
   useEffect(() => {
     if (active && isReady) {
       if (effectiveMute) {
         postCommand('mute');
       } else {
-        // Aggressive sequence to force audio on mobile
         postCommand('unMute');
         postCommand('setVolume', [100]);
-        // Re-ping play because mobile browsers often pause media when unmuting if not already playing
         postCommand('playVideo');
       }
     }
@@ -118,9 +113,9 @@ const YouTubeEmbed: React.FC<{ videoId: string; active: boolean; shouldPlay: boo
           <div className={isHero ? "absolute top-1/2 left-1/2 w-[300vw] h-[300vh] md:w-[150vw] md:h-[150vh] -translate-x-1/2 -translate-y-1/2" : "absolute inset-0 w-full h-full"}>
             <iframe
               ref={iframeRef}
+              tabIndex={-1}
               onLoad={() => {
                 setIsReady(true);
-                // Force immediate play message on load to beat mobile sleep cycles
                 postCommand('playVideo');
               }}
               className="absolute inset-0 w-full h-full object-cover"
@@ -234,7 +229,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (!isMobile) {
-      videoRefs.current.forEach((_, i) => handleVideoPlayback(i, i === activeIndex));
+      [2, 3, 4].forEach(i => handleVideoPlayback(i, i === activeIndex));
     }
   }, [activeIndex, isPlaying, isMobile]);
 
@@ -278,15 +273,16 @@ const Home: React.FC = () => {
 
   return (
     <main className="relative h-screen w-full bg-white">
-      <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 5 ? 'opacity-0 scale-90' : 'opacity-100'}`}>
+      <div className={`fixed right-8 md:right-12 top-1/2 -translate-y-1/2 z-[150] hidden md:flex flex-col space-y-4 transition-all duration-700 ${activeIndex === 1 ? 'opacity-0 scale-90' : 'opacity-100'}`}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <button key={i} onClick={() => scrollTo(i)} className="group relative flex items-center justify-center w-10 h-10 active:scale-90">
-            <div className={`transition-all duration-700 rounded-full border-2 ${activeIndex === i ? (activeIndex === 0 || activeIndex >= 4 ? 'w-3 h-3 bg-black border-black' : 'w-3 h-3 bg-white border-white') : (activeIndex === 0 || activeIndex >= 4 ? 'w-1.5 h-1.5 bg-black/20' : 'w-1.5 h-1.5 bg-white/40')}`}></div>
+            <div className={`transition-all duration-700 rounded-full border-2 ${activeIndex === i ? (activeIndex === 0 || activeIndex >= 5 ? 'w-3 h-3 bg-black border-black' : 'w-3 h-3 bg-white border-white') : (activeIndex === 0 || activeIndex >= 5 ? 'w-1.5 h-1.5 bg-black/20' : 'w-1.5 h-1.5 bg-white/40')}`}></div>
           </button>
         ))}
       </div>
 
       <div ref={containerRef} className="snap-container hide-scrollbar h-full w-full overflow-y-auto">
+        {/* PAGE 0: LOGO PAGE */}
         <section ref={(el) => { sectionRefs.current[0] = el; }} className="snap-section flex flex-col items-center justify-center bg-white">
           <div className={`text-center transition-all duration-[1500ms] ${activeIndex === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <img src="/colored-logo.png" alt="Think Films" className="h-[45vh] sm:h-[60vh] mx-auto object-contain mb-8" />
@@ -294,8 +290,55 @@ const Home: React.FC = () => {
           </div>
         </section>
 
+        {/* PAGE 1: ARCHIVE - Refined layout to prevent clipping */}
+        <section ref={(el) => { sectionRefs.current[1] = el; }} className="snap-section flex flex-col bg-white overflow-hidden relative pt-[70px]">
+          {/* Subtle background gradient for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-white to-neutral-50 pointer-events-none"></div>
+          
+          <div className="absolute top-20 md:top-28 left-8 md:left-12 z-0">
+            <div className={`transition-all duration-1000 ${activeIndex === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+              <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black/[0.03] mix-blend-multiply pointer-events-none select-none">Archive.</h4>
+            </div>
+          </div>
+          
+          <div className="relative flex-1 w-full flex items-center justify-center px-4 md:px-8 max-w-[1600px] mx-auto z-10 overflow-hidden">
+            <div className="w-full relative h-full flex items-center">
+              {/* Navigation Arrows */}
+              <div className="absolute top-1/2 -translate-y-1/2 left-0 md:left-4 z-[100]">
+                 <button onClick={prevSlide} className="w-12 h-12 md:w-20 md:h-20 rounded-full border border-black/5 flex items-center justify-center bg-white/90 backdrop-blur-xl shadow-2xl active:scale-90 transition-all hover:bg-black hover:text-white group">
+                   <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                 </button>
+              </div>
+              <div className="absolute top-1/2 -translate-y-1/2 right-0 md:right-4 z-[100]">
+                 <button onClick={nextSlide} className="w-12 h-12 md:w-20 md:h-20 rounded-full border border-black/5 flex items-center justify-center bg-white/90 backdrop-blur-xl shadow-2xl active:scale-90 transition-all hover:bg-black hover:text-white group">
+                   <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                 </button>
+              </div>
+
+              <div className={`w-full overflow-hidden transition-all duration-[1500ms] ${activeIndex === 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-95 translate-y-10'}`}>
+                <div 
+                  className="flex transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] items-center"
+                  style={{ transform: `translateX(-${carouselIndex * (100 / (window.innerWidth < 768 ? 1 : 3))}%)` }}
+                >
+                  {showcaseVideos.map((id, idx) => (
+                    <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8 flex justify-center items-center">
+                      <div className="relative w-full h-[65vh] md:h-[70vh] aspect-[9/16] group overflow-hidden bg-black rounded-xl transition-all duration-700 hover:scale-[1.01] shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-neutral-100/10">
+                        <YouTubeEmbed videoId={id} active={activeIndex === 1} shouldPlay={(window.innerWidth < 768 ? idx === carouselIndex : true) && activeIndex === 1} index={idx} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom transition mask - taller to ensure smoothness */}
+          <div className="absolute bottom-0 left-0 w-full h-[40%] bg-gradient-to-t from-black/[0.08] to-transparent z-20 pointer-events-none"></div>
+        </section>
+
+        {/* PAGES 2, 3, 4: EXPERTISE CATEGORIES */}
         {videoSections.map((section, idx) => {
-          const i = idx + 1;
+          const i = idx + 2;
           return (
             <section key={section.id} ref={(el) => { sectionRefs.current[i] = el; }} className="snap-section flex items-end justify-center bg-black pb-32 md:pb-32">
               <div className="absolute inset-0 overflow-hidden">
@@ -335,8 +378,9 @@ const Home: React.FC = () => {
           );
         })}
 
-        <section ref={(el) => { sectionRefs.current[4] = el; }} className="snap-section flex flex-col items-center justify-start pt-24 md:pt-40 bg-white px-6 md:px-8">
-          <div className={`max-w-6xl w-full text-center transition-all duration-[1500ms] ${activeIndex === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        {/* PAGE 5: CORE IDENTITY */}
+        <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col items-center justify-start pt-24 md:pt-40 bg-white px-6 md:px-8">
+          <div className={`max-w-6xl w-full text-center transition-all duration-[1500ms] ${activeIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 mb-4">Core Identity</p>
             <h3 className="text-lg md:text-3xl font-black uppercase tracking-tighter leading-tight mb-8 text-black">We define the visual standards of tomorrow.</h3>
             
@@ -351,42 +395,7 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        <section ref={(el) => { sectionRefs.current[5] = el; }} className="snap-section flex flex-col bg-white overflow-hidden relative">
-          <div className="absolute top-24 md:top-32 left-8 md:left-12 z-0">
-            <div className={`transition-all duration-1000 ${activeIndex === 5 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-              <h4 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter text-black/5 mix-blend-multiply pointer-events-none select-none">Archive.</h4>
-            </div>
-          </div>
-          
-          <div className="relative w-full h-full flex items-center justify-center px-4 md:px-8 max-w-[1600px] mx-auto z-10 pt-16">
-            <div className="absolute top-1/2 -translate-y-1/2 left-2 md:left-4 z-[100]">
-               <button onClick={prevSlide} className="w-12 h-12 md:w-20 md:h-20 rounded-full border border-black/5 flex items-center justify-center bg-white/80 backdrop-blur-xl shadow-2xl active:scale-90 transition-all hover:bg-black hover:text-white group">
-                 <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-               </button>
-            </div>
-            <div className="absolute top-1/2 -translate-y-1/2 right-2 md:right-4 z-[100]">
-               <button onClick={nextSlide} className="w-12 h-12 md:w-20 md:h-20 rounded-full border border-black/5 flex items-center justify-center bg-white/80 backdrop-blur-xl shadow-2xl active:scale-90 transition-all hover:bg-black hover:text-white group">
-                 <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-               </button>
-            </div>
-
-            <div className={`w-full overflow-hidden transition-all duration-[1500ms] ${activeIndex === 5 ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <div 
-                className="flex transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)]"
-                style={{ transform: `translateX(-${carouselIndex * (100 / (window.innerWidth < 768 ? 1 : 3))}%)` }}
-              >
-                {showcaseVideos.map((id, idx) => (
-                  <div key={id} className="w-full md:w-1/3 flex-shrink-0 px-4 md:px-8">
-                    <div className="relative aspect-[9/16] group overflow-hidden bg-black rounded-xl transition-all duration-700 hover:scale-[1.02] shadow-2xl border border-neutral-100">
-                      <YouTubeEmbed videoId={id} active={activeIndex === 5} shouldPlay={(window.innerWidth < 768 ? idx === carouselIndex : true) && activeIndex === 5} index={idx} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
+        {/* PAGE 6: GLOBAL REACH */}
         <section ref={(el) => { sectionRefs.current[6] = el; }} className="snap-section flex flex-col items-center justify-center bg-white px-8">
           <div className={`w-full max-w-7xl text-center transition-all duration-[1500ms] ${activeIndex === 6 ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
             <p className="text-[10px] uppercase tracking-[0.8em] font-black text-neutral-300 mb-8">Global Reach</p>
@@ -395,10 +404,14 @@ const Home: React.FC = () => {
               <div className="hidden md:block w-px h-24 bg-neutral-100"></div>
               <h4 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-black">UAE</h4>
             </div>
-            <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px] mt-12">Initiate Commission</Link>
+            <div className="mt-8 mb-12">
+               <p className="text-[12px] md:text-base font-black uppercase tracking-[0.6em] text-neutral-400">EXPECTANCE OF CLIENTS WORLDWIDE</p>
+            </div>
+            <Link to="/contact" className="action-btn min-w-[260px] md:min-w-[320px]">Initiate Commission</Link>
           </div>
         </section>
 
+        {/* PAGE 7: FOOTER PAGE */}
         <section ref={(el) => { sectionRefs.current[7] = el; }} className="snap-section bg-white flex flex-col overflow-y-auto hide-scrollbar">
           <div className="flex-grow flex flex-col items-center justify-center py-20 px-8">
             <h2 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter leading-none text-black text-center">Think <br /> Differently.</h2>
